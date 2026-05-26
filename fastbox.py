@@ -3,6 +3,7 @@ import math
 import random
 import csv
 import sys
+import time
 
 # --- Configuration ---
 INPUT_FILE = "data.json"
@@ -47,7 +48,15 @@ class Agent:
     def move_to(self, target_point, label=""):
         """Moves agent to target, updates distance, and prints progress."""
         distance = self.location.distance_to(target_point)
-        print(f"  [Move] Agent {self.id} moving to {label} at {target_point} (Distance: {distance:.2f})")
+        
+        # ASCII Route Visualization (Bonus)
+        print(f"  [Move] Agent {self.id}: {self.location} ===> {label} at {target_point}")
+        print(f"         Segment Distance: {distance:.2f} units")
+        
+        # Random Delivery Delay (Bonus)
+        delay = random.uniform(0.1, 0.4)
+        print(f"         ... Processing delay: {delay:.2f}s ...")
+        time.sleep(delay)
         
         # Track metrics
         self.total_distance += distance
@@ -93,6 +102,18 @@ class FastBoxSimulator:
         except json.JSONDecodeError:
             print(f"Error: Invalid JSON format in {filename}")
             sys.exit(1)
+
+    def add_new_agent(self):
+        """Handles dynamic agent joining (Bonus)."""
+        print("\n--- Dynamic Agent Joining ---")
+        try:
+            a_id = input("Enter new Agent ID (e.g., A4): ").strip()
+            x = float(input("Enter start X coordinate: "))
+            y = float(input("Enter start Y coordinate: "))
+            self.agents.append(Agent(a_id, Point(x, y)))
+            print(f"Agent {a_id} has joined the fleet!")
+        except ValueError:
+            print("Invalid input. Skipping dynamic agent addition.")
 
     def assign_packages(self):
         """Assigns each package to the nearest agent based on warehouse location."""
@@ -163,13 +184,15 @@ class FastBoxSimulator:
             json.dump(report, f, indent=4)
         print(f"\nReport saved to {OUTPUT_JSON}")
 
-        # Save Best Agent to CSV (Bonus)
+        # Export Top Performer to CSV (Bonus)
         if best_agent_id:
             stats = report[best_agent_id]
             with open(OUTPUT_CSV, 'w', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow(["Field", "Value"])
                 writer.writerow(["Best Agent ID", best_agent_id])
+                writer.writerow(["Packages Delivered", stats["packages_delivered"]])
+                writer.writerow(["Total Distance", stats["total_distance"]])
                 writer.writerow(["Efficiency", stats["efficiency"]])
             print(f"Top performer details exported to {OUTPUT_CSV}")
 
@@ -178,6 +201,11 @@ def main():
     
     sim = FastBoxSimulator()
     sim.load_data(INPUT_FILE)
+    
+    # 1. Dynamic Agent Joining (Bonus)
+    if input("\nWould you like to add a new agent mid-day? (y/n): ").lower() == 'y':
+        sim.add_new_agent()
+        
     sim.assign_packages()
     sim.run_simulation()
     sim.generate_report()
@@ -186,3 +214,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
