@@ -1,0 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Project generated reports (optional to ignore, but good to keep repo clean)
+report.json
+best_agent.csv
+
+# IDE files
+.vscode/
+.idea/
